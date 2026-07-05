@@ -20,13 +20,16 @@ function normalizeActivity(a) {
   const sport = sportName(a);
   const meters = a.distance ?? a.distanceMeters ?? a.summaryDTO?.distance;
   let distance = '';
+
   if (Number.isFinite(Number(meters))) {
     distance = sport === 'Swim'
       ? rounded(Number(meters) * 1.09361, 0)
       : rounded(Number(meters) / 1609.344, 2);
   }
+
   const seconds = a.duration ?? a.elapsedDuration ?? a.movingDuration ?? a.summaryDTO?.duration;
   const start = a.startTimeLocal || a.startTimeGMT || a.beginTimestamp || a.summaryDTO?.startTimeLocal || '';
+
   return {
     garminId: a.activityId || a.activityUUID || a.uuid || '',
     name: a.activityName || a.name || `Garmin ${sport.toLowerCase()}`,
@@ -47,15 +50,28 @@ exports.handler = async function () {
   try {
     const username = process.env.GARMIN_USERNAME || process.env.GARMIN_EMAIL;
     const password = process.env.GARMIN_PASSWORD || process.env.GARMIN_PWD;
+
     if (!username || !password) {
-      return { statusCode: 500, body: JSON.stringify({ error: 'Missing GARMIN_USERNAME and GARMIN_PASSWORD environment variables in Netlify.' }) };
+      return {
+        statusCode: 500,
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          error: 'Missing GARMIN_USERNAME and GARMIN_PASSWORD environment variables in Netlify.'
+        })
+      };
     }
 
-    const client = new GarminConnect();
-    await client.login(username, password);
+    const client = new GarminConnect({
+      username,
+      password
+    });
+
+    await client.login();
 
     const raw = await client.getActivities(0, 10);
-    const activities = Array.isArray(raw) ? raw.map(normalizeActivity).filter(x => x.date) : [];
+    const activities = Array.isArray(raw)
+      ? raw.map(normalizeActivity).filter(x => x.date)
+      : [];
 
     return {
       statusCode: 200,
@@ -66,7 +82,9 @@ exports.handler = async function () {
     return {
       statusCode: 500,
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ error: err?.message || 'Garmin sync failed.' })
+      body: JSON.stringify({
+        error: err?.message || 'Garmin sync failed.'
+      })
     };
   }
 };
