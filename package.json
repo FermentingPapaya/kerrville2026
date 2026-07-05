@@ -1,0 +1,15 @@
+{
+  "name": "kerrville2026-training-companion",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static app, no build step'"
+  },
+  "dependencies": {
+    "garmin-connect": "^1.6.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}
