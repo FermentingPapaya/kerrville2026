@@ -1,136 +1,192 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#111827" />
-<link rel="manifest" href="manifest.json" />
-<title>Kerrville 70.3 Training Companion</title>
-<style>
-:root { --bg:#f6f7f8; --card:#fff; --ink:#111827; --muted:#6b7280; --line:#e5e7eb; --accent:#111827; --soft:#f3f4f6; --green:#ecfdf5; --greenText:#065f46; --blue:#eff6ff; --blueText:#1d4ed8; --red:#fff1f2; --redText:#991b1b; --yellow:#fffbeb; --yellowText:#92400e; }
-* { box-sizing:border-box; } body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); }
-header { position:sticky;top:0;z-index:10;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:12px 14px; }
-.wrap { max-width:960px;margin:0 auto; } h1 { font-size:20px;margin:0; } .sub { color:var(--muted);font-size:12px;margin-top:3px; } main { max-width:960px;margin:0 auto;padding:12px 12px 90px; }
-.nav { display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px; } .nav button { border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 12px;border-radius:999px;white-space:nowrap;font-weight:700; } .nav button.active { background:var(--accent);color:white; }
-.card { background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.03); }
-.row { display:flex;gap:10px;align-items:center;justify-content:space-between; } .grid2 { display:grid;grid-template-columns:1fr 1fr;gap:10px; } .grid3 { display:grid;grid-template-columns:repeat(3,1fr);gap:10px; } @media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr;}}
-button.primary { width:100%;border:0;background:var(--accent);color:white;padding:13px 14px;border-radius:14px;font-size:16px;font-weight:800; } button.secondary { border:1px solid var(--line);background:white;color:var(--ink);padding:10px 12px;border-radius:12px;font-weight:800; } button.ghost { border:0;background:var(--soft);color:var(--ink);padding:9px 11px;border-radius:12px;font-weight:800; } button.danger { border:1px solid #fecaca;background:var(--red);color:var(--redText);padding:9px 11px;border-radius:12px;font-weight:800; }
-label { display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:800; } input,select,textarea { width:100%;border:1px solid var(--line);border-radius:12px;padding:11px;font-size:16px;background:white;color:var(--ink); } textarea { min-height:80px;resize:vertical; }
-.small { font-size:12px;color:var(--muted); } .big { font-size:26px;font-weight:900; } .pill { display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted);font-size:12px;background:var(--soft);margin:2px 4px 2px 0; }
-.hidden { display:none; } .planned { border-left:4px solid var(--accent);padding-left:10px;white-space:pre-wrap;line-height:1.35; }
-.calendar { display:grid;grid-template-columns:repeat(7,1fr);gap:6px; } .dow { font-size:11px;color:var(--muted);font-weight:900;text-align:center;padding:4px; } .day { min-height:76px;border:1px solid var(--line);background:white;border-radius:14px;padding:7px;text-align:left;cursor:pointer; } .day.selected { outline:3px solid #111827; } .day.out { opacity:.35; } .dateNum { font-size:13px;font-weight:900; } .mini { font-size:11px;color:var(--muted);margin-top:3px;line-height:1.1; } .status { margin-top:5px;font-size:11px;font-weight:900;border-radius:999px;padding:3px 6px;display:inline-block; } .completed{background:var(--green);color:var(--greenText);} .plannedS{background:var(--blue);color:var(--blueText);} .missed{background:var(--red);color:var(--redText);} .rest{background:var(--soft);color:var(--muted);}
-.metric { background:var(--soft);border-radius:14px;padding:12px; } .metric .num { font-size:22px;font-weight:900; } .metric .label { font-size:12px;color:var(--muted);font-weight:800; }
-.logitem { border-top:1px solid var(--line);padding:10px 0; } .logitem:first-child { border-top:0; }
-.exercise-row { display:grid;grid-template-columns:1.3fr .7fr .7fr .8fr auto;gap:6px;margin-bottom:8px; } .exercise-row input { padding:9px;font-size:14px; } @media(max-width:720px){.exercise-row{grid-template-columns:1fr 1fr;}.exercise-row button{grid-column:1/-1;}}
-.progressbar { height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden; } .progressbar div { height:100%;background:#111827;border-radius:999px; }
-pre { white-space:pre-wrap;background:var(--soft);padding:12px;border-radius:12px;font-size:13px; }
-</style>
-</head>
-<body>
-<header><div class="wrap"><h1>Kerrville 70.3 Training Companion</h1><div class="sub"><span id="raceCountdown"></span> • Calendar, Garmin import, weekly totals, coach export</div></div></header>
-<main>
-<div class="nav">
-<button id="tabHome" class="active" onclick="showTab('home')">Home</button><button id="tabCalendar" onclick="showTab('calendar')">Calendar</button><button id="tabDashboard" onclick="showTab('dashboard')">Dashboard</button><button id="tabStrength" onclick="showTab('strength')">Strength</button><button id="tabExport" onclick="showTab('export')">Export</button>
-</div>
-<section id="home" class="tab">
- <div class="card"><div class="row"><button class="ghost" onclick="changeSelectedDate(-1)">◀</button><div><div class="small">Selected day</div><div id="homeDate" class="big"></div></div><button class="ghost" onclick="changeSelectedDate(1)">▶</button></div></div>
- <div class="card"><div class="row"><div><div class="small">Planned workout</div><h2 id="planTitle" style="margin:2px 0 6px;font-size:19px;"></h2></div><button class="secondary" onclick="setSelectedToday()">Today</button></div><div id="dayPlan" class="planned"></div></div>
- <div class="card"><h2 style="font-size:18px;margin-top:0;">Garmin import</h2><p class="small">Click Sync Garmin to pull recent activities automatically. If Garmin blocks the login, use the .FIT upload fallback.</p><button class="primary" type="button" onclick="syncGarmin()">Sync Garmin</button><div style="margin-top:10px;"><label>Fallback: upload Garmin .FIT file</label><input type="file" id="fitFile" accept=".fit,.FIT" onchange="handleFitUpload(event)" /></div><div id="fitStatus" class="small" style="margin-top:8px;">No Garmin activity imported yet.</div></div>
- <div class="card"><h2 style="font-size:18px;margin-top:0;">Log this day</h2><form id="logForm" onsubmit="saveLog(event)">
-   <div class="grid2"><div><label>Date</label><input id="date" type="date" required onchange="syncSelectedFromDate()" /></div><div><label>Session</label><input id="session" placeholder="Long ride, easy run, swim, etc." required /></div></div>
-   <div class="grid2"><div><label>Sport</label><select id="sport"><option>Run</option><option>Bike</option><option>Swim</option><option>Strength</option><option>Brick</option><option>Rest</option><option>Other</option></select></div><div><label>Completed</label><select id="completed"><option>Completed</option><option>Modified</option><option>Skipped</option></select></div></div>
-   <div class="grid3"><div><label>Duration minutes</label><input id="duration" type="number" step="1" /></div><div><label>Distance</label><input id="distance" type="number" step="0.01" placeholder="miles or yards" /></div><div><label>Avg HR</label><input id="avgHR" type="number" step="1" /></div></div>
-   <div class="grid3"><div><label>Calories</label><input id="calories" type="number" step="1" /></div><div><label>Avg power</label><input id="avgPower" type="number" step="1" /></div><div><label>Training effect</label><input id="trainingEffect" type="number" step="0.1" /></div></div>
-   <div class="grid3"><div><label>RPE 1-10</label><input id="rpe" type="number" min="1" max="10" step="1" /></div><div><label>Legs</label><select id="legs"><option>Fresh</option><option>Fine</option><option>Heavy</option><option>Dead</option></select></div><div><label>Energy</label><select id="energy"><option>Low</option><option>Okay</option><option>Good</option><option>High</option></select></div></div>
-   <div class="grid2"><div><label>Fuel before</label><input id="fuelBefore" placeholder="coffee, banana, toast" /></div><div><label>Fuel during</label><input id="fuelDuring" placeholder="carbs/hr, fluids, gels" /></div></div>
-   <div class="grid2"><div><label>Fuel after</label><input id="fuelAfter" placeholder="protein, carbs, meal" /></div><div><label>Cycle phase</label><select id="cycle"><option>Unknown</option><option>Period</option><option>Follicular</option><option>Ovulatory</option><option>Luteal</option></select></div></div>
-   <div><label>Notes for coach</label><textarea id="notes" placeholder="What mattered? Heat, sleep, legs, fueling, mood, pain, etc."></textarea></div><button class="primary" type="submit" style="margin-top:10px;">Save workout</button>
- </form></div>
- <div class="card"><h2 style="font-size:18px;margin-top:0;">Saved on this day</h2><div id="selectedLogs"></div></div>
-</section>
-<section id="calendar" class="tab hidden"><div class="card"><div class="row"><button class="ghost" onclick="changeMonth(-1)">◀ Month</button><h2 id="monthTitle" style="font-size:18px;margin:0;"></h2><button class="ghost" onclick="changeMonth(1)">Month ▶</button></div></div><div class="card"><div id="calendarGrid" class="calendar"></div></div></section>
-<section id="dashboard" class="tab hidden"><div class="card"><div class="row"><div><div class="small">Current week</div><h2 id="dashWeek" style="font-size:18px;margin:0;"></h2></div><button class="secondary" onclick="selectCurrentWeek()">This week</button></div></div><div id="dashboardContent"></div></section>
-<section id="strength" class="tab hidden"><div class="card"><h2 style="font-size:18px;margin-top:0;">Strength templates</h2><button class="secondary" onclick="loadStrengthTemplate('A')">Load Strength A</button> <button class="secondary" onclick="loadStrengthTemplate('B')">Load Strength B</button><div id="strengthTemplate" style="margin-top:10px;"></div></div><div class="card"><h2 style="font-size:18px;margin-top:0;">Strength log</h2><form onsubmit="saveStrength(event)"><div class="grid2"><div><label>Date</label><input id="sDate" type="date" required /></div><div><label>Strength day</label><select id="sType"><option>Strength A</option><option>Strength B</option><option>Modified</option></select></div></div><div id="exerciseRows"></div><button type="button" class="secondary" onclick="addExerciseRow()">Add exercise</button><div class="grid2" style="margin-top:10px;"><div><label>Soreness risk tomorrow</label><select id="soreness"><option>Low</option><option>Medium</option><option>High</option></select></div><div><label>Strength notes</label><textarea id="sNotes"></textarea></div></div><button class="primary" type="submit" style="margin-top:10px;">Save strength</button></form></div></section>
-<section id="export" class="tab hidden"><div class="card"><h2 style="font-size:18px;margin-top:0;">Coach summary</h2><button class="primary" onclick="buildCoachSummary()">Build weekly summary</button><pre id="coachSummary"></pre><button class="secondary" onclick="copySummary()">Copy summary</button></div><div class="card"><h2 style="font-size:18px;margin-top:0;">Backup / data</h2><button class="secondary" onclick="downloadCSV()">Download CSV</button> <button class="secondary" onclick="downloadJSON()">Download backup JSON</button><div style="margin-top:12px;"><label>Import backup JSON</label><input type="file" accept=".json" onchange="importJSON(event)" /></div><p class="small">Data is stored locally in this browser. Export JSON periodically.</p><button class="danger" onclick="clearAll()">Clear all local data</button></div><div class="card"><h2 style="font-size:18px;margin-top:0;">All logs</h2><div id="allLogs"></div></div></section>
-</main>
-<script>
-const PLAN = [{"week": 1, "dates": "Jun 22-28", "focus": "Re-entry, Friday off, weekend protected", "mon": "AM: Easy run 4 mi + Strength A. Keep lift controlled, 2 reps in reserve.", "tue": "AM: Trainer 60 min endurance or aerobic tempo. PM: Swim 1400-1800 technique/easy.", "wed": "AM: Coached quality run. No extra work.", "thu": "AM: Strength B. PM: Easy trainer 40 min Z2, only if legs are fine.", "fri": "OFF. Walking/mobility only.", "sat": "AM: Long run 8-9 mi easy.", "sun": "AM: Long ride 1:30 easy endurance."}, {"week": 2, "dates": "Jun 29-Jul 5", "focus": "Run down week, modest bike build", "mon": "AM: Easy run 4-5 mi + Strength A, lighter lower body.", "tue": "AM: Trainer 60-70 min Z2/tempo. PM: Swim 1500-1900.", "wed": "AM: Coached quality run, keep total volume modest.", "thu": "AM: Strength B. PM: Swim or easy trainer 40-45 min. Choose swim if only 1 swim so far.", "fri": "OFF.", "sat": "AM: Long run 8-10 mi easy, down-week effort.", "sun": "AM: Long ride 1:45 easy endurance."}, {"week": 3, "dates": "Jul 6-12", "focus": "Run up week, bike build", "mon": "AM: Easy run 4-6 mi + Strength A.", "tue": "AM: Trainer 60-75 min with 3 x 8-10 min steady tempo. PM: Swim 1600-2000.", "wed": "AM: Coached quality run.", "thu": "AM: Strength B. PM: Easy trainer 45 min Z2.", "fri": "OFF.", "sat": "AM: Long run 10 mi easy.", "sun": "AM: Long ride 2:00. Fuel 60 g carbs/hr."}, {"week": 4, "dates": "Jul 13-19", "focus": "Run up week, bike build", "mon": "AM: Easy run 4-6 mi + Strength A.", "tue": "AM: Trainer 65-75 min endurance with late 5 x 3 min HIM effort. PM: Swim 1800-2200.", "wed": "AM: Coached quality run.", "thu": "AM: Strength B. PM: Easy trainer 45-50 min Z2.", "fri": "OFF.", "sat": "AM: Long run 12 mi easy. Fuel 30-45 g carbs/hr.", "sun": "AM: Long ride 2:15. Optional 10 min brick only if legs feel good."}, {"week": 5, "dates": "Jul 20-26", "focus": "Run down week, bike consolidate", "mon": "AM: Easy run 4 mi + Strength A, lower volume.", "tue": "AM: Trainer 60 min Z2. PM: Swim 1800-2200.", "wed": "AM: Coached quality run, controlled.", "thu": "AM: Strength B. PM: Swim preferred, easy technique.", "fri": "OFF.", "sat": "AM: Long run 8-10 mi easy.", "sun": "AM: Long ride 2:00 steady endurance."}, {"week": 6, "dates": "Jul 27-Aug 2", "focus": "Run up week, bike build", "mon": "AM: Easy run 4-6 mi + Strength A.", "tue": "AM: Trainer 70-80 min with 3 x 10-12 min steady tempo. PM: Swim 1900-2300.", "wed": "AM: Coached quality run.", "thu": "AM: Strength B. PM: Easy trainer 50 min Z2.", "fri": "OFF.", "sat": "AM: Long run 10 mi easy.", "sun": "AM: Long ride 2:30. Practice race fueling."}, {"week": 7, "dates": "Aug 3-9", "focus": "Run up week, 70.3-specific durability", "mon": "AM: Easy run 4-6 mi + Strength A.", "tue": "AM: Trainer 75 min with late HIM effort blocks. PM: Swim 2000-2400.", "wed": "AM: Coached quality run.", "thu": "AM: Strength B. PM: Easy trainer 50-60 min Z2.", "fri": "OFF.", "sat": "AM: Long run 12 mi easy. Do not race the group.", "sun": "AM: Long ride 2:45. Optional 15 min brick easy."}, {"week": 8, "dates": "Aug 10-16", "focus": "Run down week, bike consolidate", "mon": "AM: Easy run 4 mi + Strength A, lower volume.", "tue": "AM: Trainer 60-70 min Z2. PM: Swim 1800-2200.", "wed": "AM: Coached quality run, controlled.", "thu": "AM: Strength B. PM: Swim preferred, easy.", "fri": "OFF.", "sat": "AM: Long run 8-10 mi easy.", "sun": "AM: Long ride 2:15 steady endurance."}, {"week": 9, "dates": "Aug 17-23", "focus": "Run up week, race-specific endurance", "mon": "AM: Easy run 4-6 mi + Strength A.", "tue": "AM: Trainer 75-85 min with 3 x 12 min tempo. PM: Swim 2200-2600.", "wed": "AM: Coached quality run.", "thu": "AM: Strength B. PM: Easy trainer 50-60 min Z2.", "fri": "OFF.", "sat": "AM: Long run 12 mi easy.", "sun": "AM: Long ride 3:00. Fuel 60-75 g carbs/hr."}, {"week": 10, "dates": "Aug 24-30", "focus": "Peak run confidence week", "mon": "AM: Easy run 4-5 mi + Strength A, no aggressive lower-body volume.", "tue": "AM: Trainer 70-80 min mostly Z2. PM: Swim 2200-2600.", "wed": "AM: Coached quality run, keep controlled because Saturday is 14.", "thu": "AM: Strength B very light. PM: Optional swim only, no trainer if legs are heavy.", "fri": "OFF.", "sat": "AM: Long run 14 mi easy. Confidence session, not a race.", "sun": "AM: Long ride 3:15-3:30 mostly aerobic. No brick unless exceptionally fresh."}, {"week": 11, "dates": "Aug 31-Sep 6", "focus": "Down across the board, absorb peak", "mon": "AM: Easy run 4 mi + light Strength A.", "tue": "AM: Trainer 60 min easy Z2. PM: Swim 1800-2200.", "wed": "AM: Coached quality run, reduce total volume.", "thu": "AM: Strength B light. PM: Swim or nothing.", "fri": "OFF.", "sat": "AM: Long run 8-10 mi easy.", "sun": "AM: Long ride 2:30 steady. Optional 10 min brick if fresh."}, {"week": 12, "dates": "Sep 7-13", "focus": "Controlled up week, race-specific", "mon": "AM: Easy run 4-5 mi + Strength A, moderate.", "tue": "AM: Trainer 70-75 min with short HIM effort blocks. PM: Swim 2000-2400.", "wed": "AM: Coached quality run, no extra.", "thu": "AM: Strength B light-moderate. PM: Easy trainer 40-45 min or swim, choose based on fatigue.", "fri": "OFF.", "sat": "AM: Long run 10-11 mi easy.", "sun": "AM: Long ride 2:30-2:45. Optional 10-15 min brick easy."}, {"week": 13, "dates": "Sep 14-20", "focus": "Taper begins", "mon": "AM: Easy run 3-4 mi + light Strength A, mostly activation.", "tue": "AM: Trainer 50-60 min with a few short HIM pickups. PM: Swim 1500-2000 easy.", "wed": "AM: Short quality run, reduced volume.", "thu": "AM: Strength B activation only. PM: Optional 30-40 min easy trainer or easy swim.", "fri": "OFF.", "sat": "AM: Long run 7-8 mi easy.", "sun": "AM: Long ride 1:45-2:00 easy with a few race-effort minutes."}, {"week": 14, "dates": "Sep 21-27", "focus": "Race week", "mon": "AM: Easy run 3 mi + mobility only. No real lifting.", "tue": "AM: Trainer 35-45 min easy with 3 x 2 min HIM effort. PM: Optional easy swim 1000-1500.", "wed": "AM: Short easy run with a few strides if coach agrees.", "thu": "AM: Optional easy swim 800-1200 or 20-30 min spin. No strength.", "fri": "OFF.", "sat": "AM: 15-20 min shakeout jog only, optional. Prep gear.", "sun": "RACE: 70.3. Execute calm swim, controlled bike, patient run."}];
-const STRENGTH_A = [["Warm-up", "5-8 min easy cardio or dynamic mobility. Include bodyweight squats, hip hinges, leg swings."], ["Squat", "3 x 5-6. You love squats, so keep them, but leave 2 reps in reserve."], ["Hinge", "Romanian deadlift, trap-bar deadlift, or single-leg deadlift: 3 x 5-8."], ["Single-leg", "Reverse lunge, split squat, or step-up: 2 x 6-8 each side."], ["Push + Pull", "Pair bench press or push-ups with row or pull-down: 3 x 8 each."], ["Hamstrings/Quads", "Machine hamstring curl + quad extension or leg press: 2 x 10-12 each."], ["Calves", "Standing calf raise or soleus raise: 3 x 10-15."], ["Core", "Dead bug, side plank, Pallof press, or ab finisher: 6-10 min."], ["Coach note", "Monday can be the heavier strength day, but no failure and no soreness goal."]];
-const STRENGTH_B = [["Warm-up", "5 min mobility and activation. Keep this session controlled."], ["Glute focus", "Hip thrust or glute bridge: 2-3 x 8."], ["Hinge", "Single-leg RDL or light RDL: 2 x 8 each side."], ["Hamstrings", "Hamstring curl: 2 x 10."], ["Lateral/hip stability", "Lateral band walks, Copenhagen plank, or side plank: 2 sets."], ["Upper body", "One push + one pull: 2 x 8-10 each."], ["Calves/Soleus", "2-3 x 10-15."], ["Core/mobility", "5-8 min trunk and hip mobility."], ["Coach note", "Thursday should leave Saturday long-run legs intact. Cut load before cutting Saturday."]];
-const startDate = new Date("2026-06-22T00:00:00"); const raceDate = new Date("2026-09-27T00:00:00");
-const dayKeys=["sun","mon","tue","wed","thu","fri","sat"], dayNames=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-let selectedDate = todayISO(); let calendarMonth = new Date(selectedDate+"T00:00:00");
-function todayISO(){ return new Date().toISOString().slice(0,10); } function fmtISO(d){ return d.toISOString().slice(0,10); } function parseISO(s){ return new Date(s+"T00:00:00"); }
-function getLogs(){ return JSON.parse(localStorage.getItem("kerrvilleLogs") || localStorage.getItem("triLogs") || "[]"); } function setLogs(x){ localStorage.setItem("kerrvilleLogs", JSON.stringify(x)); }
-function getStrength(){ return JSON.parse(localStorage.getItem("kerrvilleStrength") || localStorage.getItem("strengthLogs") || "[]"); } function setStrength(x){ localStorage.setItem("kerrvilleStrength", JSON.stringify(x)); }
-function weekIndexFor(d){ const x=new Date(d); x.setHours(0,0,0,0); const ms=x.getTime()-startDate.getTime(); return Math.max(0,Math.min(PLAN.length-1,Math.floor(ms/(7*24*60*60*1000)))); }
-function currentPlanForDate(iso){ const d=parseISO(iso), w=PLAN[weekIndexFor(d)], key=dayKeys[d.getDay()]; return {week:w,key,text:w[key],dayName:dayNames[d.getDay()]}; }
-function init(){ document.getElementById('date').value=selectedDate; document.getElementById('sDate').value=selectedDate; updateCountdown(); renderHome(); renderCalendar(); renderDashboard(); renderLogs(); addExerciseRow('Squat','','',''); addExerciseRow('Bench press','','',''); addExerciseRow('Row','','',''); }
-function updateCountdown(){ const days=Math.ceil((raceDate-parseISO(todayISO()))/(24*60*60*1000)); document.getElementById('raceCountdown').textContent = days>=0 ? `${days} days to race day` : 'Race complete'; }
-function showTab(name){ document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden')); document.getElementById(name).classList.remove('hidden'); document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active')); document.getElementById('tab'+name.charAt(0).toUpperCase()+name.slice(1)).classList.add('active'); if(name==='calendar')renderCalendar(); if(name==='dashboard')renderDashboard(); if(name==='export')renderLogs(); if(name==='home')renderHome(); }
-function setSelectedDate(iso){ selectedDate=iso; document.getElementById('date').value=iso; document.getElementById('sDate').value=iso; calendarMonth=parseISO(iso); renderHome(); renderCalendar(); renderDashboard(); }
-function setSelectedToday(){ setSelectedDate(todayISO()); } function changeSelectedDate(n){ const d=parseISO(selectedDate); d.setDate(d.getDate()+n); setSelectedDate(fmtISO(d)); } function syncSelectedFromDate(){ setSelectedDate(document.getElementById('date').value); }
-function renderHome(){ const d=parseISO(selectedDate), p=currentPlanForDate(selectedDate); document.getElementById('homeDate').textContent=d.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'}); document.getElementById('planTitle').textContent=`${p.dayName} • Week ${p.week.week} (${p.week.dates})`; document.getElementById('dayPlan').textContent=p.text; if(!document.getElementById('session').value) fillSessionFromPlan(); renderSelectedLogs(); }
-function fillSessionFromPlan(){ const p=currentPlanForDate(selectedDate).text; document.getElementById('session').value=p.replace(/^AM:\s*/,'').slice(0,90); const t=p.toLowerCase(); document.getElementById('sport').value=t.includes('swim')&&!t.includes('run')?'Swim':t.includes('trainer')||t.includes('ride')?'Bike':t.includes('strength')&&!t.includes('run')?'Strength':t.includes('off')?'Rest':'Run'; }
-function renderSelectedLogs(){ const logs=getLogs().filter(x=>x.date===selectedDate); const s=getStrength().filter(x=>x.date===selectedDate); let html=''; if(logs.length) html+=logs.map(logHTML).join(''); if(s.length) html+='<h3>Strength</h3>'+s.map(strengthHTML).join(''); document.getElementById('selectedLogs').innerHTML=html||'<p class="small">Nothing saved for this day.</p>'; }
-function saveLog(e){ e.preventDefault(); const item={id:Date.now(),date:date.value,session:session.value,sport:sport.value,completed:completed.value,duration:duration.value,distance:distance.value,avgHR:avgHR.value,calories:calories.value,avgPower:avgPower.value,trainingEffect:trainingEffect.value,rpe:rpe.value,legs:legs.value,energy:energy.value,cycle:cycle.value,fuelBefore:fuelBefore.value,fuelDuring:fuelDuring.value,fuelAfter:fuelAfter.value,notes:notes.value,source:window.lastFitImport?'Garmin FIT':'Manual'}; const logs=getLogs(); logs.push(item); setLogs(logs); window.lastFitImport=null; document.getElementById('logForm').reset(); document.getElementById('date').value=selectedDate; fillSessionFromPlan(); renderHome(); renderCalendar(); renderDashboard(); }
-function logHTML(x){ return `<div class="logitem"><strong>${x.date} • ${x.sport}</strong> <span class="pill">${x.completed}</span> <span class="pill">${x.source||'Manual'}</span><br><span>${esc(x.session)}</span><br><span class="pill">${x.distance||'-'} ${x.sport==='Swim'?'yd/mi':'mi'}</span><span class="pill">${x.duration||'-'} min</span><span class="pill">HR ${x.avgHR||'-'}</span><span class="pill">RPE ${x.rpe||'-'}</span><div class="small">${esc(x.notes||'')}</div><button class="danger" onclick="deleteLog(${x.id})">Delete</button></div>`; }
-function deleteLog(id){ setLogs(getLogs().filter(x=>x.id!==id)); renderHome(); renderCalendar(); renderDashboard(); renderLogs(); }
-function changeMonth(n){ calendarMonth.setMonth(calendarMonth.getMonth()+n); renderCalendar(); }
-function renderCalendar(){ const grid=document.getElementById('calendarGrid'); if(!grid)return; grid.innerHTML=''; const year=calendarMonth.getFullYear(), month=calendarMonth.getMonth(); document.getElementById('monthTitle').textContent=new Date(year,month,1).toLocaleDateString(undefined,{month:'long',year:'numeric'}); ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(x=>{ const e=document.createElement('div'); e.className='dow'; e.textContent=x; grid.appendChild(e); }); const first=new Date(year,month,1), start=new Date(first); start.setDate(first.getDate()-first.getDay()); for(let i=0;i<42;i++){ const d=new Date(start); d.setDate(start.getDate()+i); const iso=fmtISO(d); const p=currentPlanForDate(iso); const logs=getLogs().filter(x=>x.date===iso); const hasPlan=!p.text.toLowerCase().includes('off'); let status=logs.some(x=>x.completed==='Completed')?'Completed':logs.some(x=>x.completed==='Skipped')?'Missed':hasPlan?'Planned':'Rest'; const div=document.createElement('button'); div.className='day '+(d.getMonth()!==month?'out ':'')+(iso===selectedDate?'selected ':''); div.onclick=()=>{ setSelectedDate(iso); showTab('home'); }; div.innerHTML=`<div class="dateNum">${d.getDate()}</div><div class="mini">${shortPlan(p.text)}</div><div class="status ${status==='Completed'?'completed':status==='Missed'?'missed':status==='Rest'?'rest':'plannedS'}">${status}</div>`; grid.appendChild(div); } }
-function shortPlan(t){ const l=t.toLowerCase(); if(l.includes('race'))return 'Race'; if(l.includes('off'))return 'Off'; if(l.includes('long run'))return 'Long run'; if(l.includes('long ride'))return 'Long ride'; if(l.includes('quality'))return 'Quality run'; if(l.includes('swim')&&l.includes('trainer'))return 'Bike + swim'; if(l.includes('swim'))return 'Swim'; if(l.includes('trainer')||l.includes('ride'))return 'Bike'; if(l.includes('strength'))return 'Strength'; if(l.includes('run'))return 'Run'; return 'Plan'; }
-function selectCurrentWeek(){ setSelectedDate(todayISO()); showTab('dashboard'); }
-function weekBounds(idx){ const start=new Date(startDate.getTime()+idx*7*24*60*60*1000), end=new Date(start.getTime()+6*24*60*60*1000); return [fmtISO(start),fmtISO(end)]; }
-function renderDashboard(){ const idx=weekIndexFor(parseISO(selectedDate)), w=PLAN[idx], [a,b]=weekBounds(idx); document.getElementById('dashWeek').textContent=`Week ${w.week}: ${w.dates}`; const logs=getLogs().filter(x=>x.date>=a&&x.date<=b&&x.completed!=='Skipped'); const strength=getStrength().filter(x=>x.date>=a&&x.date<=b); const sum=(sport)=>logs.filter(x=>x.sport===sport).reduce((acc,x)=>acc+(parseFloat(x.distance)||0),0); const mins=logs.reduce((acc,x)=>acc+(parseFloat(x.duration)||0),0); const run=sum('Run'), bike=sum('Bike'), swim=sum('Swim'); const rpe=logs.filter(x=>x.rpe).map(x=>+x.rpe); const avgRpe=rpe.length?(rpe.reduce((a,b)=>a+b,0)/rpe.length).toFixed(1):'-'; const cards=`<div class="grid3"><div class="metric"><div class="num">${run.toFixed(1)}</div><div class="label">Run miles</div></div><div class="metric"><div class="num">${bike.toFixed(1)}</div><div class="label">Bike miles</div></div><div class="metric"><div class="num">${swim.toFixed(0)}</div><div class="label">Swim distance</div></div><div class="metric"><div class="num">${(mins/60).toFixed(1)}</div><div class="label">Training hours</div></div><div class="metric"><div class="num">${strength.length}</div><div class="label">Strength sessions</div></div><div class="metric"><div class="num">${avgRpe}</div><div class="label">Average RPE</div></div></div>`; const days=['mon','tue','wed','thu','fri','sat','sun']; let planned=days.map(k=>`<div class="logitem"><strong>${k.toUpperCase()}</strong><div class="planned">${w[k]}</div></div>`).join(''); document.getElementById('dashboardContent').innerHTML=`<div class="card"><p class="small">${w.focus}</p>${cards}</div><div class="card"><h2 style="font-size:18px;margin-top:0;">Week plan</h2>${planned}</div>`; }
-function renderLogs(){ const logs=getLogs().sort((a,b)=>b.date.localeCompare(a.date)); const s=getStrength().sort((a,b)=>b.date.localeCompare(a.date)); let html=''; if(logs.length)html+=logs.map(logHTML).join(''); if(s.length)html+='<h3>Strength</h3>'+s.map(strengthHTML).join(''); document.getElementById('allLogs').innerHTML=html||'<p class="small">No logs yet.</p>'; }
-function loadStrengthTemplate(type){ const arr=type==='A'?STRENGTH_A:STRENGTH_B; document.getElementById('strengthTemplate').innerHTML=arr.map(x=>`<div class="logitem"><strong>${x[0]}</strong><br>${x[1]}</div>`).join(''); document.getElementById('sType').value=type==='A'?'Strength A':'Strength B'; document.getElementById('exerciseRows').innerHTML=''; const defaults=type==='A'?['Squat','Romanian deadlift','Reverse lunge','Bench press','Row','Hamstring curl','Quad extension','Core finisher']:['Hip thrust','Single-leg RDL','Hamstring curl','Lateral band walk','Push','Pull','Soleus/calf','Core/mobility']; defaults.forEach(n=>addExerciseRow(n,'','','')); }
-function addExerciseRow(name='',sets='',reps='',weight=''){ const div=document.createElement('div'); div.className='exercise-row'; div.innerHTML=`<input placeholder="Exercise" value="${attr(name)}"/><input placeholder="Sets" value="${attr(sets)}"/><input placeholder="Reps" value="${attr(reps)}"/><input placeholder="Weight" value="${attr(weight)}"/><button type="button" class="danger" onclick="this.parentElement.remove()">Remove</button>`; document.getElementById('exerciseRows').appendChild(div); }
-function saveStrength(e){ e.preventDefault(); const exercises=Array.from(document.querySelectorAll('#exerciseRows .exercise-row')).map(row=>{const v=Array.from(row.querySelectorAll('input')).map(i=>i.value);return {exercise:v[0],sets:v[1],reps:v[2],weight:v[3]};}).filter(x=>x.exercise); const item={id:Date.now(),date:sDate.value,type:sType.value,exercises,soreness:soreness.value,notes:sNotes.value}; const logs=getStrength(); logs.push(item); setStrength(logs); e.target.reset(); document.getElementById('sDate').value=selectedDate; document.getElementById('exerciseRows').innerHTML=''; addExerciseRow(); renderHome(); renderDashboard(); }
-function strengthHTML(x){ return `<div class="logitem"><strong>${x.date} • ${x.type}</strong> <span class="pill">Soreness ${x.soreness}</span><br>${x.exercises.map(e=>`${esc(e.exercise)}: ${esc(e.sets)} x ${esc(e.reps)} @ ${esc(e.weight)}`).join('<br>')}<div class="small">${esc(x.notes||'')}</div><button class="danger" onclick="deleteStrength(${x.id})">Delete</button></div>`; }
-function deleteStrength(id){ setStrength(getStrength().filter(x=>x.id!==id)); renderHome(); renderDashboard(); renderLogs(); }
-function buildCoachSummary(){ const idx=weekIndexFor(parseISO(selectedDate)), w=PLAN[idx], bounds=weekBounds(idx), a=bounds[0], b=bounds[1]; const logs=getLogs().filter(x=>x.date>=a&&x.date<=b); const s=getStrength().filter(x=>x.date>=a&&x.date<=b); let text=`Kerrville 70.3 Week ${w.week} (${w.dates})\nFocus: ${w.focus}\n\nCompleted workouts:\n`; logs.forEach(x=>{ text+=`${x.date}: ${x.sport} - ${x.session}. ${x.completed}. ${x.distance||'-'} distance, ${x.duration||'-'} min, HR ${x.avgHR||'-'}, power ${x.avgPower||'-'}, TE ${x.trainingEffect||'-'}, RPE ${x.rpe||'-'}, legs ${x.legs||'-'}, energy ${x.energy||'-'}. Fuel before: ${x.fuelBefore||'-'}. During: ${x.fuelDuring||'-'}. After: ${x.fuelAfter||'-'}. Notes: ${x.notes||'-'}\n`; }); if(s.length){ text+='\nStrength:\n'; s.forEach(x=>{text+=`${x.date}: ${x.type}, soreness risk ${x.soreness}. `+x.exercises.map(e=>`${e.exercise} ${e.sets}x${e.reps}@${e.weight}`).join('; ')+`. Notes: ${x.notes||'-'}\n`;}); } text+='\nPlease analyze whether next week should be adjusted based on fatigue, training balance, fueling, and race readiness.\n'; document.getElementById('coachSummary').textContent=text; }
-async function copySummary(){ await navigator.clipboard.writeText(document.getElementById('coachSummary').textContent); alert('Copied.'); }
-function allRows(){ return [...getLogs().map(x=>({kind:'workout',...x})),...getStrength().map(x=>({kind:'strength',...x,exercises:JSON.stringify(x.exercises)}))]; }
-function downloadCSV(){ const rows=allRows(), h=['kind','date','sport','session','completed','duration','distance','avgHR','calories','avgPower','trainingEffect','rpe','legs','energy','cycle','fuelBefore','fuelDuring','fuelAfter','notes','source','type','exercises','soreness']; const csv=[h.join(',')].concat(rows.map(r=>h.map(k=>`"${String(r[k]??'').replaceAll('"','""')}"`).join(','))).join('\n'); blob(csv,'kerrville_training_log.csv','text/csv'); }
-function downloadJSON(){ blob(JSON.stringify({kerrvilleLogs:getLogs(),kerrvilleStrength:getStrength(),exportedAt:new Date().toISOString()},null,2),'kerrville_training_backup.json','application/json'); } function blob(c,n,t){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([c],{type:t})); a.download=n; a.click(); }
-function importJSON(e){ const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{ const d=JSON.parse(r.result); if(d.kerrvilleLogs||d.triLogs)setLogs(d.kerrvilleLogs||d.triLogs); if(d.kerrvilleStrength||d.strengthLogs)setStrength(d.kerrvilleStrength||d.strengthLogs); renderHome();renderCalendar();renderDashboard();renderLogs(); alert('Imported.'); }; r.readAsText(f); }
-function clearAll(){ if(confirm('Clear all local workout and strength data?')){ localStorage.removeItem('kerrvilleLogs'); localStorage.removeItem('kerrvilleStrength'); renderHome(); renderCalendar(); renderDashboard(); renderLogs(); } }
+#!/usr/bin/env node
+/*
+  Generate long-lived Garmin OAuth tokens for Netlify.
+  Adapted from cggmx/garmin-health-dashboard's garth-inspired mobile JSON API flow.
+  Run: npm run garmin:tokens
+*/
+const readline = require('readline');
+const crypto = require('crypto');
+const axios = require('axios');
+const { CookieJar } = require('tough-cookie');
+const OAuth = require('oauth-1.0a');
 
-async function syncGarmin(){
-  const status=document.getElementById('fitStatus');
-  status.textContent='Syncing Garmin...';
-  try{
-    const res=await fetch('/.netlify/functions/sync-garmin');
-    const payload=await res.json();
-    if(!res.ok) throw new Error(payload.error || 'Garmin sync failed.');
-    const activities=payload.activities || [];
-    if(!activities.length){ status.textContent='Garmin sync worked, but no recent activities were returned.'; return; }
-    const chosen=activities[0];
-    applyGarminActivityToForm(chosen);
-    status.textContent=`Synced ${chosen.sport} • ${chosen.distance || '-'} • ${chosen.duration || '-'} min • HR ${chosen.avgHR || '-'}`;
-  }catch(err){
-    console.error(err);
-    status.textContent='Garmin sync failed: '+err.message+' Use .FIT upload for now.';
+try {
+  const fs = require('fs');
+  const path = require('path');
+  const envPath = path.join(__dirname, '..', '.env.local');
+  if (fs.existsSync(envPath)) {
+    fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
+      const m = line.match(/^([^#=]+)=(.*)$/);
+      if (m) process.env[m[1].trim()] = m[2].trim().replace(/^["']|["']$/g, '');
+    });
   }
-}
-function applyGarminActivityToForm(d){
-  setSelectedDate(d.date || selectedDate);
-  document.getElementById('sport').value=d.sport || 'Other';
-  document.getElementById('session').value=d.name || (d.sport==='Run'?'Garmin run':d.sport==='Bike'?'Garmin bike':d.sport==='Swim'?'Garmin swim':'Garmin workout');
-  document.getElementById('completed').value='Completed';
-  document.getElementById('duration').value=d.duration || '';
-  document.getElementById('distance').value=d.distance || '';
-  document.getElementById('avgHR').value=d.avgHR || '';
-  document.getElementById('calories').value=d.calories || '';
-  document.getElementById('avgPower').value=d.avgPower || '';
-  document.getElementById('trainingEffect').value=d.trainingEffect || '';
-  window.lastFitImport=true;
+} catch (_) {}
+
+async function prompt(question, hidden = false) {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  if (hidden && process.stdin.isTTY && process.stdout.isTTY) {
+    process.stdout.write(question);
+    process.stdin.setRawMode(true);
+    return new Promise(resolve => {
+      let input = '';
+      function onData(ch) {
+        ch = ch.toString();
+        if (ch === '\r' || ch === '\n') {
+          process.stdin.setRawMode(false);
+          process.stdin.off('data', onData);
+          process.stdout.write('\n');
+          rl.close();
+          resolve(input);
+        } else if (ch === '\u0003') {
+          process.exit();
+        } else if (ch === '\u007f') {
+          input = input.slice(0, -1);
+        } else {
+          input += ch;
+        }
+      }
+      process.stdin.on('data', onData);
+      process.stdin.resume();
+    });
+  }
+  return new Promise(resolve => rl.question(question, ans => { rl.close(); resolve(ans.trim()); }));
 }
 
-function handleFitUpload(e){ const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{ try{ const data=parseFit(reader.result); applyFitToForm(data); document.getElementById('fitStatus').textContent=`Imported ${data.sport} • ${data.distance} • ${data.duration} min • HR ${data.avgHR||'-'}`; }catch(err){ console.error(err); document.getElementById('fitStatus').textContent='Could not read this FIT file. Try Export Original from Garmin Connect, then upload that .fit file.'; } }; reader.readAsArrayBuffer(file); }
-function parseFit(buffer){ const dv=new DataView(buffer); const headerSize=dv.getUint8(0); const dataSize=dv.getUint32(4,true); let off=headerSize, end=headerSize+dataSize; const defs={}, sessions=[]; let lastTs=null; function readVal(pos,size,base,little){ if(size===1)return dv.getUint8(pos); if(size===2)return base===0x83?dv.getInt16(pos,little):dv.getUint16(pos,little); if(size===4)return (base===0x85?dv.getInt32(pos,little):dv.getUint32(pos,little)); return null; } while(off<end){ const rh=dv.getUint8(off++); const isDef=(rh&0x40)!==0; const local=rh&0x0f; if(isDef){ off++; const arch=dv.getUint8(off++); const little=arch===0; const global=dv.getUint16(off,little); off+=2; const n=dv.getUint8(off++); const fields=[]; for(let i=0;i<n;i++){ fields.push({num:dv.getUint8(off), size:dv.getUint8(off+1), base:dv.getUint8(off+2)}); off+=3; } defs[local]={global,fields,little}; } else { const def=defs[local]; if(!def) break; const rec={}; for(const f of def.fields){ rec[f.num]=readVal(off,f.size,f.base,def.little); off+=f.size; } if(def.global===18) sessions.push(rec); if(rec[253]) lastTs=rec[253]; } } const s=sessions[sessions.length-1]||{}; const sportMap={1:'Run',2:'Bike',5:'Swim'}; const sport=sportMap[s[5]]||'Other'; const fitEpoch=Date.UTC(1989,11,31); const ts=s[2]||s[253]||lastTs; const date=ts?new Date(fitEpoch+ts*1000).toISOString().slice(0,10):selectedDate; const meters=s[9]!==undefined?s[9]/100:null; const distance=sport==='Swim'&&meters?Math.round(meters*1.09361):meters?(meters/1609.344).toFixed(2):''; const duration=s[8]!==undefined?Math.round((s[8]/1000)/60):(s[7]!==undefined?Math.round((s[7]/1000)/60):''); return {sport,date,distance,duration,avgHR:s[16]||'',maxHR:s[17]||'',calories:s[11]||'',avgPower:s[20]||'',trainingEffect:s[48]? (s[48]/10).toFixed(1):''}; }
-function applyFitToForm(d){ setSelectedDate(d.date); document.getElementById('sport').value=d.sport; document.getElementById('session').value=d.sport==='Run'?'Garmin run':d.sport==='Bike'?'Garmin bike':d.sport==='Swim'?'Garmin swim':'Garmin workout'; document.getElementById('completed').value='Completed'; document.getElementById('duration').value=d.duration; document.getElementById('distance').value=d.distance; document.getElementById('avgHR').value=d.avgHR; document.getElementById('calories').value=d.calories; document.getElementById('avgPower').value=d.avgPower; document.getElementById('trainingEffect').value=d.trainingEffect; window.lastFitImport=true; }
-function esc(s){ return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); } function attr(s){ return esc(s).replaceAll('"','&quot;'); }
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js?v=4').catch(()=>{}); } init();
-</script>
-</body></html>
+async function loginWithMobileApi(username, password) {
+  const SSO = 'https://sso.garmin.com';
+  const SERVICE = 'https://mobile.integration.garmin.com/gcm/android';
+  const CLIENT = 'GCM_ANDROID_DARK';
+  const SSO_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
+  const BASE_HEADERS = {
+    'User-Agent': SSO_UA,
+    'Accept': 'application/json, text/html, */*',
+    'Accept-Language': 'en-US,en;q=0.9',
+  };
+  const LOGIN_PARAMS = `clientId=${CLIENT}&locale=en-US&service=${encodeURIComponent(SERVICE)}`;
+  const jar = new CookieJar();
+
+  async function req(method, url, { params, body, extraHeaders } = {}) {
+    const fullUrl = params ? `${url}?${params}` : url;
+    const cookies = await jar.getCookies(fullUrl);
+    const cookieHeader = cookies.map(c => `${c.key}=${c.value}`).join('; ');
+    const resp = await axios({
+      method,
+      url: fullUrl,
+      data: body,
+      headers: { ...BASE_HEADERS, ...(cookieHeader ? { Cookie: cookieHeader } : {}), ...(extraHeaders || {}) },
+      validateStatus: s => s < 500,
+      maxRedirects: 5,
+    });
+    const setCookies = resp.headers['set-cookie'] || [];
+    for (const c of setCookies) await jar.setCookie(c, fullUrl).catch(() => {});
+    return resp;
+  }
+
+  await req('GET', `${SSO}/mobile/sso/en/sign-in`, { params: `clientId=${CLIENT}` });
+  const loginResp = await req('POST', `${SSO}/mobile/api/login`, {
+    params: LOGIN_PARAMS,
+    body: JSON.stringify({ username, password, rememberMe: false, captchaToken: '' }),
+    extraHeaders: { 'Content-Type': 'application/json' },
+  });
+  const loginData = loginResp.data;
+  const status = loginData?.responseStatus?.type || loginData?.type;
+
+  if (!status) {
+    const isRateLimit = loginResp.status === 429 || JSON.stringify(loginData).includes('429');
+    if (isRateLimit) {
+      throw new Error('Garmin rate limit 429. Wait 24-48 hours, then try once. Do not keep retrying.');
+    }
+    throw new Error(`Unexpected Garmin login response: ${JSON.stringify(loginData).slice(0, 300)}`);
+  }
+
+  if (status === 'MFA_REQUIRED') {
+    const method = loginData?.customerMfaInfo?.mfaLastMethodUsed || 'email';
+    console.log(`MFA required (${method}). Garmin should send a fresh code now.`);
+    const mfaCode = await prompt('Enter Garmin MFA code: ');
+    const mfaResp = await req('POST', `${SSO}/mobile/api/mfa/verifyCode`, {
+      params: LOGIN_PARAMS,
+      body: JSON.stringify({
+        mfaMethod: method,
+        mfaVerificationCode: mfaCode.trim(),
+        rememberMyBrowser: false,
+        reconsentList: [],
+        mfaSetup: false,
+      }),
+      extraHeaders: { 'Content-Type': 'application/json' },
+    });
+    const mfaData = mfaResp.data;
+    const mfaStatus = mfaData?.responseStatus?.type || mfaData?.type;
+    if (mfaStatus !== 'SUCCESSFUL') throw new Error(`MFA failed: ${mfaStatus || 'unknown'}`);
+    return mfaData.serviceTicketId || mfaData.serviceTicketUrl || null;
+  }
+
+  if (status !== 'SUCCESSFUL') throw new Error(`Garmin login failed: ${status}`);
+  return loginData.serviceTicketId || loginData.serviceTicketUrl || null;
+}
+
+async function exchangeTicketForTokens(ticket) {
+  const CONNECT_API = 'https://connectapi.garmin.com';
+  const MOBILE_UA = 'com.garmin.android.apps.connectmobile';
+  const LOGIN_URL = 'https://mobile.integration.garmin.com/gcm/android';
+
+  const consumerResp = await axios.get('https://thegarth.s3.amazonaws.com/oauth_consumer.json');
+  const { consumer_key, consumer_secret } = consumerResp.data;
+  const oauth = OAuth({
+    consumer: { key: consumer_key, secret: consumer_secret },
+    signature_method: 'HMAC-SHA1',
+    hash_function: (base, key) => crypto.createHmac('sha1', key).update(base).digest('base64'),
+  });
+
+  const preAuthUrl = `${CONNECT_API}/oauth-service/oauth/preauthorized`;
+  const preAuthParams = { ticket, 'login-url': LOGIN_URL, 'accepts-mfa-tokens': 'true' };
+  const fullPreAuthUrl = `${preAuthUrl}?${new URLSearchParams(preAuthParams)}`;
+  const preAuthHeader = oauth.toHeader(oauth.authorize({ url: fullPreAuthUrl, method: 'GET' }));
+  const preAuthResp = await axios.get(fullPreAuthUrl, { headers: { ...preAuthHeader, 'User-Agent': MOBILE_UA }, validateStatus: () => true });
+  if (preAuthResp.status !== 200) throw new Error(`OAuth preauth failed HTTP ${preAuthResp.status}: ${String(preAuthResp.data).slice(0, 300)}`);
+
+  const preAuthData = new URLSearchParams(preAuthResp.data);
+  const oauth1Token = {
+    oauth_token: preAuthData.get('oauth_token'),
+    oauth_token_secret: preAuthData.get('oauth_token_secret'),
+    mfa_token: preAuthData.get('mfa_token') || undefined,
+  };
+  if (!oauth1Token.oauth_token) throw new Error(`OAuth preauth returned no token: ${String(preAuthResp.data).slice(0, 300)}`);
+
+  const exchangeUrl = `${CONNECT_API}/oauth-service/oauth/exchange/user/2.0`;
+  const exchangeBodyData = { audience: 'GARMIN_CONNECT_MOBILE_ANDROID_DI' };
+  if (oauth1Token.mfa_token) exchangeBodyData.mfa_token = oauth1Token.mfa_token;
+  const exchangeHeader = oauth.toHeader(oauth.authorize({ url: exchangeUrl, method: 'POST', data: exchangeBodyData }, { key: oauth1Token.oauth_token, secret: oauth1Token.oauth_token_secret }));
+  const exchangeBody = new URLSearchParams(exchangeBodyData);
+  const exchangeResp = await axios.post(exchangeUrl, exchangeBody.toString(), {
+    headers: { ...exchangeHeader, 'User-Agent': MOBILE_UA, 'Content-Type': 'application/x-www-form-urlencoded' },
+    validateStatus: () => true,
+  });
+  if (exchangeResp.status !== 200) throw new Error(`OAuth exchange failed HTTP ${exchangeResp.status}: ${JSON.stringify(exchangeResp.data).slice(0, 300)}`);
+  return { oauth1Token, oauth2Token: exchangeResp.data };
+}
+
+async function main() {
+  let user = process.env.GARMIN_USERNAME;
+  let pass = process.env.GARMIN_PASSWORD;
+  if (!user) user = await prompt('Garmin username/email: ');
+  if (!pass) pass = await prompt('Garmin password: ', true);
+  if (!user || !pass) throw new Error('Username and password are required.');
+
+  console.log(`Logging into Garmin as ${user}...`);
+  const serviceTicket = await loginWithMobileApi(user, pass);
+  const ticket = serviceTicket ? (String(serviceTicket).match(/ticket=([^&\s"]+)/)?.[1] ?? String(serviceTicket).trim()) : null;
+  if (!ticket) throw new Error('No Garmin service ticket was returned.');
+  const { oauth1Token, oauth2Token } = await exchangeTicketForTokens(ticket);
+
+  console.log('\nTokens generated. Add these to Netlify as environment variables.');
+  console.log('\nGARMIN_OAUTH1');
+  console.log(JSON.stringify(oauth1Token));
+  console.log('\nGARMIN_OAUTH2');
+  console.log(JSON.stringify(oauth2Token));
+  console.log('\nKeep GARMIN_USERNAME and GARMIN_PASSWORD set too. After adding both token variables, redeploy Netlify.');
+}
+
+main().catch(err => {
+  console.error('\nFailed:', err.message || err);
+  process.exit(1);
+});
